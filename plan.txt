@@ -1,0 +1,65 @@
+Weather Dashboard:
+The plan:
+step-by-step approach to tackle this project:
+
+1. **Project Understanding and Planning**
+   - Understand the project requirements thoroughly.
+   - Draw a rough sketch or wireframe of the final dashboard design.
+   - List down all the features and functionalities you need to implement.
+
+2. **Set Up Basic Project Structure**
+   - Set up a new project directory with all the necessary files. This should include at least an HTML file, a CSS file, and a JavaScript file.
+   - Implement basic HTML structure and add links to the CSS and JavaScript files.
+   - Add a form input to the HTML where users can enter the name of a city.
+
+3. **API Key Registration and Testing**
+   - Register for an API key from OpenWeatherMap. Remember, you might need to wait a couple of hours before it gets activated.
+   - Once activated, test the API key by making a simple request to confirm it's working correctly.
+
+4. **Implementing Current Weather Feature**
+   - Write a function in JavaScript to get the current weather data for a city using the API. This function should take the city name from the form input, use it to make a request to the API, and then display the received data on the dashboard. This data should include the city name, date, weather conditions icon, temperature, humidity, and wind speed.
+
+5. **Implementing Future Weather Feature**
+   - Write another function to get the 5-day weather forecast for the entered city. This function should make a request to the API and display the received data on the dashboard. Each day's forecast should include the date, weather conditions icon, temperature, wind speed, and humidity.
+
+6. **Implementing Search History Feature**
+   - Every time a user searches for a city, save that city name in the local storage.
+   - Display a list of searched cities on the dashboard. This list should be retrieved from the local storage.
+   - Add a click event to each city in the search history. When clicked, it should display the current and future weather conditions for that city.
+
+7. **Styling the Dashboard**
+   - Use CSS to style the dashboard according to your preference. Make sure the layout is clean and the data is easy to read.
+
+8. **Testing and Debugging**
+   - Thoroughly test all the features and functionalities of your weather dashboard to ensure everything is working as expected.
+   - Fix any bugs or issues that you come across during testing.
+
+9. **Documentation and Deployment**
+   - Write a comprehensive README file explaining how to use the dashboard and how it was built.
+   - Deploy the dashboard on a suitable platform.
+
+
+
+
+Server-Side APIs Challenge: Weather Dashboard
+Third-party APIs allow developers to access their data and functionality by making requests with specific parameters to a URL. Developers are often tasked with retrieving data from another application's API and using it in the context of their own. Your challenge is to build a weather dashboard that will run in the browser and feature dynamically updated HTML and CSS.
+
+Use the 5 Day Weather ForecastLinks to an external site. to retrieve weather data for cities. The base URL should look like the following: https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}. After registering for a new API key, you may need to wait up to 2 hours for that API key to activate.
+
+HINT
+You will use localStorage to store any persistent data. For more information on how to work with the OpenWeather API, refer to the Full-Stack Blog on how to use API keysLinks to an external site..
+
+User Story
+AS A traveler
+I WANT to see the weather outlook for multiple cities
+SO THAT I can plan a trip accordingly
+Acceptance Criteria
+GIVEN a weather dashboard with form inputs
+WHEN I search for a city
+THEN I am presented with current and future conditions for that city and that city is added to the search history
+WHEN I view current weather conditions for that city
+THEN I am presented with the city name, the date, an icon representation of weather conditions, the temperature, the humidity, and the the wind speed
+WHEN I view future weather conditions for that city
+THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
+WHEN I click on a city in the search history
+THEN I am again presented with current and future conditions for that city
