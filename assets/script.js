@@ -18,22 +18,97 @@ const apiKey = '8e7d624a36ee6dc86609752312393f54';
 const city = '';
 
 // Declarations for the HTML elements
-const = citySearchEl = $('#search-input');
-const = citySearchBtn = $('#search-btn');
-const = clearHistoryBtn = $('#clear-history');
-const = cityHistoryEl = $('#history-list');
-const = currentCityEl = $('#city-weather');
-const = currentTempEl = $('#temperature');
-const = currentHumidityEl = $('#humidity');
-const = currentWindEl = $('#wind-speed');
-const = currentUVEl = $('#UV-index');
+const citySearchEl = $('#search-input');
+const citySearchBtn = $('#search-btn');
+const clearHistoryBtn = $('#clear-history');
+const cityHistoryEl = $('#history-list');
+const currentCityEl = $('#city-name'); // changed from city-weather
+const currentTempEl = $('#temperature');
+const currentHumidityEl = $('#humidity');
+const currentWindEl = $('#wind-speed');
+const currentUVEl = $('#UV-index');
 
 // Searches for the city entered in the search bar
-const = searchCity [];
+const searchCity = [];
 
+function find (city) {
+    for (var i = 0; i < searchCity.length; i++) {
+        if (city.toUpperCase() === searchCity[i]) {
+            return -1;
+        }
+    }
+    return 1;
+}
+
+function getCity (city) {
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${apiKey}`;
+
+    return fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.length > 0) {
+            return{
+                latitude: data[0].lat, 
+                longitude: data[0].lon,
+            };
+        } else {
+            return error('City not found');
+        }
+        });
+    }
 
 
 // Function to display current weather
+function displayWeather(event) {
+    event.preventDefault();
+    if (citySearchEl.val().trim() !== '') {
+       let city = citySearchEl.val().trim();
+       getCity(city)
+       .then((coordinates) => {
+        currentWeather(city, coordinates);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+    }else{
+        alert('Please enter a city name');
+    }
+}
+
+function currentWeather(city, coordinates) {
+    //const quereyURL = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=' + apiKey; 
+    const quereyURL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${apiKey}`;
+    fetch(quereyURL)
+    .then(function(response){
+        return response.json();
+    }).then((data) =>{
+        const weatherIcon = data.weather[0].icon; //data or response .weather?
+        const cityName = data.name;
+        const temperature = data.main.temp - 273.15; //convert to Celsius - will need to fix to F
+        const humidity = data.main.humidity;
+        const windSpeed = data.wind.speed;
+
+        console.log(data);
+
+        currentCityEl.text(cityName); //+ ' (' + new Date().toLocaleDateString()) + ')';
+        currentTempEl.text('Temperature: ' + temperature + '°C');
+        currentHumidityEl.text('Humidity: ' + humidity + '%');
+        currentWindEl.text('Wind Speed: ' + windSpeed + 'MPH');
+
+        let img = $('<img>').attr('src', 'http://openweathermap.org/img/w/' + weatherIcon + '.png');
+        currentCityEl.append(img);
+       
+        //document.getElementById('weather-icon').innerHTML = '<img src="http://openweathermap.org/img/w/' + weatherIcon + '.png';
+        //currentCityEl.text(cityName + ' (' + new Date().toLocaleDateString()) + ')';
+        //currentTempEl.text('Temperature: ' + temperature);
+        //currentHumidityEl.text('Humidity: ' + humidity);
+       //currentWindEl.text('Wind Speed: ' + windSpeed);
+    })
+    // Error handler for fetch if city is not found
+    .catch((error) => {
+        console.log('Error:', error);
+    });
+};
 
 
 // Function to display UV index
@@ -49,5 +124,7 @@ const = searchCity [];
 
 
 // Event listeners and click events
-
-
+$(document).ready(function() {
+citySearchBtn.click(displayWeather);
+});
+//citySearchBtn.on('click', displayWeather);
