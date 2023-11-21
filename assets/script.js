@@ -84,14 +84,14 @@ function currentWeather(city, coordinates) {
     }).then((data) =>{
         const weatherIcon = data.weather[0].icon; //data or response .weather?
         const cityName = data.name;
-        const temperature = data.main.temp - 273.15; //convert to Celsius - will need to fix to F
+        const temperature = data.main.temp *9/5 - 459.67;//273.15; //convert to Celsius - will need to fix to F
         const humidity = data.main.humidity;
         const windSpeed = data.wind.speed;
 
         console.log(data);
 
         currentCityEl.text(cityName); //+ ' (' + new Date().toLocaleDateString()) + ')';
-        currentTempEl.text('Temperature: ' + temperature + '°C');
+        currentTempEl.text('Temperature: ' + temperature.toFixed(2) + '°F');
         currentHumidityEl.text('Humidity: ' + humidity + '%');
         currentWindEl.text('Wind Speed: ' + windSpeed + 'MPH');
 
