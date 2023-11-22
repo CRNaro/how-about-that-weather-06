@@ -26,7 +26,7 @@ const currentCityEl = $('#city-name'); // changed from city-weather
 const currentTempEl = $('#temperature');
 const currentHumidityEl = $('#humidity');
 const currentWindEl = $('#wind-speed');
-const currentUVEl = $('#UV-index');
+
 
 // Searches for the city entered in the search bar
 const searchCity = [];
@@ -56,7 +56,26 @@ function getCity (city) {
         }
         });
     }
+// Save city to ul 
+function saveCity(city) {
+    const btn = $('<button>').addClass('list-group-item list-group-action').text(city);
+    btn.on('click', function() { 
+        const allData = JSON.parse(localStorage.getItem(city)) || [];
+        const cityData = allData.find(data => data.name === city);
 
+        if (cityData) {
+            currentWeather(city, cityData); //currentWeather or updatePage?
+        }
+        
+        
+        // Retrieve weather data for city from local storage
+        //citySearchEl.val(city);
+        //citySearchBtn.click();
+        //citySearchEl.val(city);
+        //displayWeather(new Event('click'));
+    });
+    $('#history-list').append(btn);
+}
 
 // Function to display current weather
 function displayWeather(event) {
@@ -66,6 +85,9 @@ function displayWeather(event) {
        getCity(city)
        .then((coordinates) => {
         currentWeather(city, coordinates);
+        fiveDayForecast(city); // call fiveDayForecast function
+        saveCity(city);
+        citySearchEl.val('');
     })
     .catch((error) => {
         console.error('Error:', error);
@@ -75,20 +97,33 @@ function displayWeather(event) {
     }
 }
 
-function currentWeather(city, coordinates) {
-    //const quereyURL = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=' + apiKey; 
+function currentWeather(city, coordinates) { 
     const quereyURL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${apiKey}`;
     fetch(quereyURL)
     .then(function(response){
         return response.json();
     }).then((data) =>{
+        const allData = JSON.parse(localStorage.getItem(city)) || []; //city or 'weatherData'?
+        
+        // Add new data to array    
+        allData.push(data);
+        // Save to local storage
+        localStorage.setItem(city, JSON.stringify(allData));
+        
+        // EXAMPLE OF HOW TO SAVE TO LOCAL STORAGE
+        //const allChars = JSON.parse(localStorage.getItem("userData")) || [];
+        //allChars.push(userData);
+        //localStorage.setItem("userData", JSON.stringify(allChars));
+//}
+
+
         const weatherIcon = data.weather[0].icon; //data or response .weather?
         const cityName = data.name;
         const temperature = data.main.temp *9/5 - 459.67;//273.15; //convert to Celsius - will need to fix to F
         const humidity = data.main.humidity;
         const windSpeed = data.wind.speed;
 
-        console.log(data);
+        //console.log(data);
 
         currentCityEl.text(cityName); //+ ' (' + new Date().toLocaleDateString()) + ')';
         currentTempEl.text('Temperature: ' + temperature.toFixed(2) + '°F');
@@ -98,11 +133,7 @@ function currentWeather(city, coordinates) {
         let img = $('<img>').attr('src', 'http://openweathermap.org/img/w/' + weatherIcon + '.png');
         currentCityEl.append(img);
        
-        //document.getElementById('weather-icon').innerHTML = '<img src="http://openweathermap.org/img/w/' + weatherIcon + '.png';
-        //currentCityEl.text(cityName + ' (' + new Date().toLocaleDateString()) + ')';
-        //currentTempEl.text('Temperature: ' + temperature);
-        //currentHumidityEl.text('Humidity: ' + humidity);
-       //currentWindEl.text('Wind Speed: ' + windSpeed);
+        fiveDayForecast(city);
     })
     // Error handler for fetch if city is not found
     .catch((error) => {
@@ -111,12 +142,38 @@ function currentWeather(city, coordinates) {
 };
 
 
-// Function to display UV index
-
 
 // Function to display 5 day forecast
-
-
+function fiveDayForecast(city) {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`;
+    fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data);
+        const forecasts = data.list;
+        let currentDate = new Date().getDate();
+        let dayCount = 1;
+        // Loop through all forecasts
+        forecasts.forEach((forecast, i) => {
+            const date = new Date(forecast.dt * 1000);   
+          if (date.getDate() !== currentDate) {     // taken out - && date.getHours() === 12
+            currentDate = date.getDate();
+            console.log("Updating forecast for day " + dayCount);
+            $('#date-' + dayCount).text(date.toDateString()); 
+           $('#weather-icon-' + dayCount).attr('src', 'http://openweathermap.org/img/w/' + forecast.weather[0].icon + '.png');
+           $('#temperature-' + dayCount).text('Temp: ' + ((forecast.main.temp - 273.15) * 9/5 + 32).toFixed(2) + '°F'); 
+           $('#humidity-' + dayCount).text('Humidity: ' + forecast.main.humidity + '%');
+            dayCount++;
+            if (dayCount > 5) {
+                return;
+            }
+          }
+        });
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+       }
 // Save searched cities to local storage and dynamically create buttons for each city
 
 
@@ -126,5 +183,7 @@ function currentWeather(city, coordinates) {
 // Event listeners and click events
 $(document).ready(function() {
 citySearchBtn.click(displayWeather);
+
+
 });
 //citySearchBtn.on('click', displayWeather);
