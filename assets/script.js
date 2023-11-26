@@ -61,6 +61,14 @@ function getCity (city) {
 function saveCity(city) {
     
     const li = $('<li>').addClass('list-group-item list-group-action').text(city);
+        li.css({
+            'cursor': 'pointer',
+            'width': '100%',
+            'margin': '5px',
+            'height': '50px',
+           
+        
+        });
     li.on('click', function(event) {
         event.preventDefault();
         const allData = JSON.parse(localStorage.getItem(city)) || []; 

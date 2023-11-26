@@ -1,10 +1,20 @@
 
-#city-weather {
-    flex-direction: column;
-    };
 
+
+
+#city-weather {
+   /* display: flex */
+    flex-direction: column;
+    background-color: rgb(249, 227, 200);
+    }
+
+ 
 .current {
     color: #000;
     font-weight: bold;
     display: block;
-};
+}
+
+#search-form {
+    background-color: rgb(249, 227, 200);
+}
