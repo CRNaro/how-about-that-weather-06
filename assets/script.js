@@ -11,6 +11,7 @@
 //THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
 //WHEN I click on a city in the search history
 //THEN I am again presented with current and future conditions for that city
+//weatherData
 
 // My API key
 const apiKey = '8e7d624a36ee6dc86609752312393f54';
@@ -58,34 +59,33 @@ function getCity (city) {
     }
 // Save city to ul 
 function saveCity(city) {
-    const btn = $('<button>').addClass('list-group-item list-group-action').text(city);
-    btn.on('click', function() { 
-        const allData = JSON.parse(localStorage.getItem(city)) || [];
-        const cityData = allData.find(data => data.name === city);
+    
+    const li = $('<li>').addClass('list-group-item list-group-action').text(city);
+    li.on('click', function(event) {
+        event.preventDefault();
+        const allData = JSON.parse(localStorage.getItem(city)) || []; 
+        const cityData = allData[allData.length - 1];
 
-        if (cityData) {
-            currentWeather(city, cityData); //currentWeather or updatePage?
+        if (cityData && cityData.latitude && cityData.longitude) {
+            currentWeather(cityData); 
+            fiveDayForecast(city);
         }
-        
-        
-        // Retrieve weather data for city from local storage
-        //citySearchEl.val(city);
-        //citySearchBtn.click();
-        //citySearchEl.val(city);
-        //displayWeather(new Event('click'));
-    });
-    $('#history-list').append(btn);
+    });  
+    $('#history-list').append(li);
 }
+    
+
+
 
 // Function to display current weather
-function displayWeather(event) {
+function displayWeather(data) {  
     event.preventDefault();
     if (citySearchEl.val().trim() !== '') {
        let city = citySearchEl.val().trim();
        getCity(city)
        .then((coordinates) => {
         currentWeather(city, coordinates);
-        fiveDayForecast(city); // call fiveDayForecast function
+        fiveDayForecast(city); 
         saveCity(city);
         citySearchEl.val('');
     })
@@ -103,29 +103,25 @@ function currentWeather(city, coordinates) {
     .then(function(response){
         return response.json();
     }).then((data) =>{
-        const allData = JSON.parse(localStorage.getItem(city)) || []; //city or 'weatherData'?
+        const allData = JSON.parse(localStorage.getItem(city)) || []; 
         
         // Add new data to array    
         allData.push(data);
         // Save to local storage
         localStorage.setItem(city, JSON.stringify(allData));
-        
-        // EXAMPLE OF HOW TO SAVE TO LOCAL STORAGE
-        //const allChars = JSON.parse(localStorage.getItem("userData")) || [];
-        //allChars.push(userData);
-        //localStorage.setItem("userData", JSON.stringify(allChars));
-//}
 
 
-        const weatherIcon = data.weather[0].icon; //data or response .weather?
+
+
+        const weatherIcon = data.weather[0].icon; 
         const cityName = data.name;
-        const temperature = data.main.temp *9/5 - 459.67;//273.15; //convert to Celsius - will need to fix to F
+        const temperature = data.main.temp *9/5 - 459.67;
         const humidity = data.main.humidity;
         const windSpeed = data.wind.speed;
 
-        //console.log(data);
+       
 
-        currentCityEl.text(cityName); //+ ' (' + new Date().toLocaleDateString()) + ')';
+        currentCityEl.text(cityName); 
         currentTempEl.text('Temperature: ' + temperature.toFixed(2) + '°F');
         currentHumidityEl.text('Humidity: ' + humidity + '%');
         currentWindEl.text('Wind Speed: ' + windSpeed + 'MPH');
@@ -133,6 +129,8 @@ function currentWeather(city, coordinates) {
         let img = $('<img>').attr('src', 'http://openweathermap.org/img/w/' + weatherIcon + '.png');
         currentCityEl.append(img);
        
+      
+
         fiveDayForecast(city);
     })
     // Error handler for fetch if city is not found
@@ -156,7 +154,7 @@ function fiveDayForecast(city) {
         // Loop through all forecasts
         forecasts.forEach((forecast, i) => {
             const date = new Date(forecast.dt * 1000);   
-          if (date.getDate() !== currentDate) {     // taken out - && date.getHours() === 12
+          if (date.getDate() !== currentDate) {    
             currentDate = date.getDate();
             console.log("Updating forecast for day " + dayCount);
             $('#date-' + dayCount).text(date.toDateString()); 
@@ -174,16 +172,22 @@ function fiveDayForecast(city) {
             console.error('Error:', error);
         });
        }
-// Save searched cities to local storage and dynamically create buttons for each city
 
 
-// Clear search history from page
 
 
 // Event listeners and click events
 $(document).ready(function() {
 citySearchBtn.click(displayWeather);
-
-
 });
-//citySearchBtn.on('click', displayWeather);
+$('#history-list').on('click', 'li', function(event){
+    const city = $(this).text();
+    getCity(city)
+    .then((coordinates) => {
+        currentWeather(city, coordinates);
+        fiveDayForecast(city);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}); 
